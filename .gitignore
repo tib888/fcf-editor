@@ -1,0 +1,5 @@
+backend/Cargo.lock
+frontends/elm-stuff/
+frontends/fcf.html
+backend/target/
+*.bak

@@ -1,0 +1,39 @@
+
+alpha_ = { ASCII_ALPHA | "_" }
+
+pipe = _{ "|" | ";" }
+square_open = _{ "[" }
+square_close = _{ "]" }
+round_open = _{ "(" }
+round_close = _{ ")" }
+dash = _{ "-" }
+comma = _{ "," }
+colon = _{ ":" | "," }
+
+decimal = @{ (ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)?) | ("." ~ ASCII_DIGIT+) }
+
+identifier = @{ alpha_ ~ (alpha_ | ASCII_DIGIT)* }
+
+mmc_modifier = @{ ^"MMC" | ^"M" }
+lmc_modifier = @{ ^"LMC" | ^"L" }
+sl_modifier = @{ ^"SL" }
+modifier = { mmc_modifier | lmc_modifier | sl_modifier }
+
+position_type = @{ ^"Position" }
+profile_type = @{ ^"Profile" }
+fcf_type = { (position_type | profile_type) }
+
+datum = { identifier }
+datum_use = { datum ~ (colon? ~ modifier ~ (comma? ~ modifier)*)? }
+datum_uses = { (datum_use ~ (dash ~ datum_uses)*) | ( (round_open ~ datum_uses ~ round_close) ~ (colon? ~ modifier ~ (comma? ~ modifier)*)? ~ (dash ~ datum_uses)* ) }
+drf_box = { pipe ~ datum_uses }
+
+usl = ${ decimal }
+
+fcf_tier = { square_open? ~ fcf_type ~ pipe ~ usl ~ (colon? ~ modifier ~ (comma? ~ modifier)*)? ~ drf_box* ~ square_close? }
+
+tail = _{ (ANY)* }
+
+input = _{ SOI ~ fcf_tier ~ (NEWLINE ~ fcf_tier)* ~ tail ~ EOI }
+
+WHITESPACE = _{ " " | "\t" }
